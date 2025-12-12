@@ -3,4 +3,6 @@ from . import views
 
 urlpatterns = [
 path('', views.home, name='home'),
+path('mal/login/', views.mal_login, name='mal_login'),
+path('mal/callback/', views.mal_callback, name='mal_callback'),
 ]
