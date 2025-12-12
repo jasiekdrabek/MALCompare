@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Wynik porównania</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    />
+    <style>
+      img.poster {
+        height: 80px;
+        border-radius: 4px;
+      }
+      table td {
+        vertical-align: middle;
+      }
+    </style>
+  </head>
+  <body class="p-4">
+    <h2>Porównanie użytkowników {{ user_a }} vs {{ user_b }}</h2>
+
+    <hr />
+
+    <h3 id="common">🎬 Wspólne anime</h3>
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th>Poster</th>
+          <th>Tytuł</th>
+          <th>Status {{user_a}}</th>
+          <th>Status {{user_b}}</th>
+          <th>Score {{user_a}}</th>
+          <th>Score {{user_b}}</th>
+          <th>Liczba odcinków</th>
+          <th>Gatunki</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in common_page %}
+        <tr>
+          <td><img class="poster" src="{{ a.main_picture}}" /></td>
+          <td>{{ a.title }}</td>
+          <td>{{ a.status_a }}</td>
+          <td>{{ a.status_b }}</td>
+          <td>{{ a.score_a }}</td>
+          <td>{{ a.score_b }}</td>
+          <td>{{ a.num_episodes }}</td>
+          <td>{{ a.genres|join:", " }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="pagination">
+      {% if common_page.has_previous %}
+      <a href="?page_common={{ common_page.previous_page_number }}{% if request.GET.page_only_a %}&page_only_a={{ request.GET.page_only_a }}{% endif %}{% if request.GET.page_only_b %}&page_only_b={{ request.GET.page_only_b }}{% endif %}#common">Prev</a>
+      {% endif %}
+
+      <span>Strona {{ common_page.number }} z {{common_page.paginator.num_pages}}   </span>
+
+      {% if common_page.has_next %}
+      <a href="{{ request.path }}?page_common={{ common_page.next_page_number }}{% if request.GET.page_only_a %}&page_only_a={{ request.GET.page_only_a }}{% endif %}{% if request.GET.page_only_b %}&page_only_b={{ request.GET.page_only_b }}{% endif %}#common"> Next</a>
+      {% endif %}
+    </div>
+    <hr />
+
+    <h3 id="onlyA">🟦 Unikalne dla {{ user_a }}</h3>
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th>Poster</th>
+          <th>Tytuł</th>
+          <th>Status {{user_a}}</th>
+          <th>Score {{user_a}}</th>
+          <th>Liczba odcinków</th>
+          <th>Gatunki</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in only_a_page %}
+        <tr>
+          <td><img class="poster" src="{{ e.main_picture }}" /></td>
+          <td>{{ e.title }}</td>
+          <td>{{ e.status }}</td>
+          <td>{{ e.score }}</td>
+          <td>{{ e.num_episodes }}</td>
+          <td>{{ e.genres|join:", " }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="pagination">
+      {% if only_a_page.has_previous %}
+      <a href="?page_only_a={{ only_a_page.previous_page_number }}{% if request.GET.page_common %}&page_common={{ request.GET.page_common }}{% endif %}{% if request.GET.page_only_b %}&page_only_b={{ request.GET.page_only_b }}{% endif %}#onlyA">Prev</a>
+      {% endif %}
+
+      <span>Strona {{ only_a_page.number }} z {{only_a_page.paginator.num_pages}}   </span>
+
+      {% if only_a_page.has_next %}
+      <a href="?page_only_a={{ only_a_page.next_page_number }}{% if request.GET.page_common %}&page_common={{ request.GET.page_common }}{% endif %}{% if request.GET.page_only_b %}&page_only_b={{ request.GET.page_only_b }}{% endif %}#onlyA"> Next</a>
+      {% endif %}
+    </div>
+    <hr />
+
+    <h3 id="onlyB">🟥 Unikalne dla {{ user_b }}</h3>
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th>Poster</th>
+          <th>Tytuł</th>
+          <th>Status {{user_b}}</th>
+          <th>Score {{user_b}}</th>
+          <th>Liczba odcinków</th>
+          <th>Gatunki</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in only_b_page %}
+        <tr>
+          <td><img class="poster" src="{{ e.main_picture }}" /></td>
+          <td>{{ e.title }}</td>
+          <td>{{ e.status }}</td>
+          <td>{{ e.score }}</td>
+          <td>{{ e.num_episodes }}</td>
+          <td>{{ e.genres|join:", " }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="pagination">
+      {% if only_b_page.has_previous %}
+      <a href="?page_only_b={{ only_b_page.previous_page_number }}{% if request.GET.page_only_a %}&page_only_a={{ request.GET.page_only_a }}{% endif %}{% if request.GET.page_common %}&page_common={{ request.GET.page_common }}{% endif %}#onlyB">Prev</a>
+      {% endif %}
+
+      <span>Strona {{only_b_page.number }} z {{only_b_page.paginator.num_pages}}   </span>
+
+      {% if only_b_page.has_next %}
+      <a href="?page_only_b={{ only_b_page.next_page_number }}{% if request.GET.page_only_a %}&page_only_a={{ request.GET.page_only_a }}{% endif %}{% if request.GET.page_common %}&page_common={{ request.GET.page_common}}{% endif %}#onlyB"> Next</a>
+      {% endif %}
+    </div>
+  </body>
+</html>

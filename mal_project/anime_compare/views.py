@@ -3,10 +3,14 @@ from django.http import HttpResponse, JsonResponse
 from .utils.pkce import generate_pkce_pair_plain
 from .utils.mal_api import mal_fetch_anime_list
 from .utils.db import save_user_anime_list
+from .utils.compare_lists import compare_users_lists
 from urllib.parse import urlencode
+from django.core.paginator import Paginator
 import os
 import requests
-
+from datetime import timedelta
+from django.utils import timezone
+from .models import UserAnime
 
 def home(request):
     return HttpResponse('anime_compare app — działa!')
@@ -54,7 +58,15 @@ def mal_callback(request):
     # Zapisujemy token w session
     request.session["mal_token"] = token_data["access_token"]
 
-    return redirect("/")
+    # Sprawdzamy, czy użytkownik próbował wykonać porównanie
+    pending_a = request.session.pop("pending_compare_a", None)
+    pending_b = request.session.pop("pending_compare_b", None)
+
+    if pending_a and pending_b:
+        # automatyczne odpalenie porównania
+        return redirect("compare_users_direct", user_a=pending_a, user_b=pending_b)
+
+    return redirect("compare_form")
 
 def mal_my_anime(request):
     access_token = request.session.get("mal_access_token")
@@ -80,3 +92,73 @@ def fetch_and_save(request, username):
         "snapshot_id": snapshot.id,
         "fetched_at": snapshot.fetched_at
     })
+    
+def compare_form(request):
+    return render(request, "anime_compare/compare_form.html")
+
+def compare_users(request):
+    pagination_params = {"page_common", "page_only_a", "page_only_b"}
+    if request.method != "POST":
+        if any(p in request.GET for p in pagination_params):
+        # Przekieruj do direct z tymi samymi parametrami
+            user_a = request.session.get("last_user_a")
+            user_b = request.session.get("last_user_b")
+            if not user_a or not user_b:
+                return redirect("compare_form")
+            # Zachowujemy parametry GET
+            params = request.GET.urlencode()
+            return redirect(f"/compare/run/{user_a}/{user_b}/?{params}")
+        return redirect("compare_form")
+    user_a = request.POST.get("user_a")
+    user_b = request.POST.get("user_b")
+    token = request.session.get("mal_token")
+
+    if not token:
+        # ZAPAMIĘTUJEMY użytkowników i przekierowujemy do MAL
+        request.session["pending_compare_a"] = user_a
+        request.session["pending_compare_b"] = user_b
+        return redirect("mal_login")  # <-- automatyczne logowanie
+
+    return _run_comparison(request, user_a, user_b)
+
+def compare_users_direct(request, user_a, user_b):
+    token = request.session.get("mal_token")
+
+    if not token:
+        # bardzo mało prawdopodobne, ale obsługujemy
+        request.session["pending_compare_a"] = user_a
+        request.session["pending_compare_b"] = user_b
+        return redirect("mal_login")
+
+    return _run_comparison(request, user_a, user_b)
+
+def _run_comparison(request, user_a, user_b):
+
+    token = request.session["mal_token"]
+    snapA = UserAnime.objects.filter(username=user_a).first()
+    snapB = UserAnime.objects.filter(username=user_b).first()
+
+    now = timezone.now()
+    max_age = timedelta(days=7)
+
+    if not snapA or not snapA.fetched_at or now - snapA.fetched_at > max_age:
+        data_a = mal_fetch_anime_list(user_a, token)
+        save_user_anime_list(user_a, data_a)
+
+    if not snapB or not snapB.fetched_at or now - snapB.fetched_at > max_age:
+        data_b = mal_fetch_anime_list(user_b, token)
+        save_user_anime_list(user_b, data_b)
+
+    context = compare_users_lists(user_a, user_b)
+    
+    def paginate(request,list_data, param):
+        paginator = Paginator(list_data, 10)
+        page = request.GET.get(param)
+        return paginator.get_page(page)
+    request.session["last_user_a"] = user_a
+    request.session["last_user_b"] = user_b
+    context["common_page"] = paginate(request,context["common"], "page_common")
+    context["only_a_page"] = paginate(request,context["only_a"], "page_only_a")
+    context["only_b_page"] = paginate(request,context["only_b"], "page_only_b")
+
+    return render(request, "anime_compare/compare_result.html", context)
