@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from .utils.pkce import generate_pkce_pair_plain
+from .utils.mal_api import mal_fetch_anime_list
+from .utils.db import save_user_anime_list
 from urllib.parse import urlencode
 import os
 import requests
@@ -53,3 +55,28 @@ def mal_callback(request):
     request.session["mal_token"] = token_data["access_token"]
 
     return redirect("/")
+
+def mal_my_anime(request):
+    access_token = request.session.get("mal_access_token")
+    username = request.get("username")
+
+    anime_list = mal_fetch_anime_list(access_token, username)
+
+    return JsonResponse({"count": len(anime_list), "anime": anime_list})
+
+def fetch_and_save(request, username):
+    token = request.session.get("mal_token")
+    if not token:
+        return JsonResponse({"error": "Not authenticated with MAL"}, status=401)
+
+    animelist_data = mal_fetch_anime_list(username, token)
+
+    snapshot = save_user_anime_list(username, animelist_data)
+
+    return JsonResponse({
+        "message": "List saved",
+        "username": username,
+        "entries": snapshot.entry_count,
+        "snapshot_id": snapshot.id,
+        "fetched_at": snapshot.fetched_at
+    })
