@@ -1,0 +1,54 @@
+<div id="{{ table_type }}-table">
+
+  <h3 class="mt-4">
+    {% if table_type == "common" %}🎬 Wspólne anime{% endif %}
+    {% if table_type == "only_a" %}🅰 Tylko {{ user_a }}{% endif %}
+    {% if table_type == "only_b" %}🅱 Tylko {{ user_b }}{% endif %}
+  </h3>
+
+  <table class="table table-striped table-hover">
+    <thead>
+      <tr>
+        <th>Poster</th>
+        <th>Tytuł</th>
+
+        {% if table_type == "common" %}
+          <th>Status {{ user_a }}</th>
+          <th>Status {{ user_b }}</th>
+          <th>Score {{ user_a }}</th>
+          <th>Score {{ user_b }}</th>
+        {% else %}
+          <th>Status</th>
+          <th>Score</th>
+        {% endif %}
+
+        <th>Liczba odcinków</th>
+        <th>Gatunki</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for a in page_obj %}
+        <tr>
+          <td><img class="poster" src="{{ a.main_picture }}"></td>
+          <td>{{ a.title }}</td>
+
+          {% if table_type == "common" %}
+            <td>{{ a.status_a }}</td>
+            <td>{{ a.status_b }}</td>
+            <td>{{ a.score_a }}</td>
+            <td>{{ a.score_b }}</td>
+          {% else %}
+            <td>{{ a.status }}</td>
+            <td>{{ a.score }}</td>
+          {% endif %}
+
+          <td>{{ a.num_episodes }}</td>
+          <td>{{ a.genres|join:", " }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% include "anime_compare/partials/pagination.html" with page_obj=page_obj page_param="page_"|add:table_type table_type=table_type %}
+</div>

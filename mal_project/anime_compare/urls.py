@@ -13,4 +13,9 @@ urlpatterns = [
     views.compare_users_direct,
     name="compare_users_direct"
     ),
+    path(
+    "compare/partial/<str:table_type>/",
+    views.compare_table_partial,
+    name="compare_table_partial",
+    )
 ]

@@ -11,6 +11,7 @@ import requests
 from datetime import timedelta
 from django.utils import timezone
 from .models import UserAnime
+from django.urls import reverse
 
 def home(request):
     return HttpResponse('anime_compare app — działa!')
@@ -132,6 +133,11 @@ def compare_users_direct(request, user_a, user_b):
 
     return _run_comparison(request, user_a, user_b)
 
+def paginate(request,list_data, param):
+    paginator = Paginator(list_data, 10)
+    page = request.GET.get(param)
+    return paginator.get_page(page)
+
 def _run_comparison(request, user_a, user_b):
 
     token = request.session["mal_token"]
@@ -148,17 +154,42 @@ def _run_comparison(request, user_a, user_b):
     if not snapB or not snapB.fetched_at or now - snapB.fetched_at > max_age:
         data_b = mal_fetch_anime_list(user_b, token)
         save_user_anime_list(user_b, data_b)
-
-    context = compare_users_lists(user_a, user_b)
-    
-    def paginate(request,list_data, param):
-        paginator = Paginator(list_data, 10)
-        page = request.GET.get(param)
-        return paginator.get_page(page)
-    request.session["last_user_a"] = user_a
-    request.session["last_user_b"] = user_b
-    context["common_page"] = paginate(request,context["common"], "page_common")
-    context["only_a_page"] = paginate(request,context["only_a"], "page_only_a")
-    context["only_b_page"] = paginate(request,context["only_b"], "page_only_b")
+    comparison = compare_users_lists(user_a, user_b)
+    context = {
+    "common_ctx": build_table_context(request, "common", comparison, user_a, user_b),
+    "only_a_ctx": build_table_context(request, "only_a", comparison, user_a, user_b),
+    "only_b_ctx": build_table_context(request, "only_b", comparison, user_a, user_b),
+    }
 
     return render(request, "anime_compare/compare_result.html", context)
+
+def compare_table_partial(request, table_type):
+    user_a = request.session.get("last_user_a")
+    user_b = request.session.get("last_user_b")
+    comparison = compare_users_lists(user_a, user_b)
+    if not user_a or not user_b:
+        return render(request, "anime_compare/partials/error.html")
+
+    context = build_table_context(request, table_type, comparison, user_a, user_b)
+    return render(
+        request,
+        "anime_compare/partials/table_generic.html",
+        context
+    )
+    
+def build_table_context(request, table_type, comparison, user_a, user_b):
+    data = comparison
+
+    if table_type not in data:
+        raise ValueError("Nieznany typ tabeli")
+
+    page_param = f"page_{table_type}"
+    paginator = Paginator(data[table_type], 10)
+    page = request.GET.get(page_param)
+
+    return {
+        "table_type": table_type,
+        "page_obj": paginator.get_page(page),
+        "user_a": user_a,
+        "user_b": user_b,
+    }
