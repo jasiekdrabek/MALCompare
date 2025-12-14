@@ -1,3 +1,4 @@
+{% load dict_extras %}
 <div id="{{ table_type }}-table">
 
   <h3 class="mt-4">
@@ -9,46 +10,45 @@
   <table class="table table-striped table-hover">
     <thead>
       <tr>
-        <th>Poster</th>
-        <th>Tytuł</th>
-
-        {% if table_type == "common" %}
-          <th>Status {{ user_a }}</th>
-          <th>Status {{ user_b }}</th>
-          <th>Score {{ user_a }}</th>
-          <th>Score {{ user_b }}</th>
+      {% for col in columns %}
+      <th>
+        {% if col.sortable %}
+          {% include "anime_compare/partials/sort_header.html" with label=col.label sort_key=col.key current_sort=current_sort current_dir=current_dir user_a=user_a user_b=user_b%}
         {% else %}
-          <th>Status</th>
-          <th>Score</th>
+          {{ col.label }}
         {% endif %}
-
-        <th>Liczba odcinków</th>
-        <th>Gatunki</th>
+      </th>
+    {% endfor %}
       </tr>
     </thead>
 
     <tbody>
-      {% for a in page_obj %}
-        <tr>
-          <td><img class="poster" src="{{ a.main_picture }}"></td>
-          <td>{{ a.title }}</td>
-
-          {% if table_type == "common" %}
-            <td>{{ a.status_a }}</td>
-            <td>{{ a.status_b }}</td>
-            <td>{{ a.score_a }}</td>
-            <td>{{ a.score_b }}</td>
+    {% for row in page_obj %}
+    <tr>
+      {% for col in columns %}
+        <td>
+          {% if col.label == "Poster" %}
+            <img class="poster" src="{{ row.main_picture }}">
+          {% elif col.key == "genres" %}
+            <div class="genre-cell">
+              {% for genre in row.genres %}
+                <span class="genre-summary-pill {% if genre in included_genres %} include {% else %} neutral {% endif %}"
+                  data-genre="{{ genre }}"
+                >
+                  {{ genre }}
+                </span>
+              {% endfor %}
+            </div>
           {% else %}
-            <td>{{ a.status }}</td>
-            <td>{{ a.score }}</td>
+            {{ row|get_item:col.key }}
           {% endif %}
-
-          <td>{{ a.num_episodes }}</td>
-          <td>{{ a.genres|join:", " }}</td>
-        </tr>
+        </td>
       {% endfor %}
+    </tr>
+    {% endfor %}
     </tbody>
   </table>
 
-  {% include "anime_compare/partials/pagination.html" with page_obj=page_obj page_param="page_"|add:table_type table_type=table_type %}
+  {% include "anime_compare/partials/pagination.html" with page_obj=page_obj%}
+
 </div>

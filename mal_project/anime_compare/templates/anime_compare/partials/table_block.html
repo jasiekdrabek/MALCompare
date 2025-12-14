@@ -1,0 +1,77 @@
+<div    id="{{ ctx.table_type }}-table-wrapper" class="table-wrapper mb-5 p-3" data-table-type="{{ ctx.table_type }}">
+
+  <!-- 🔐 KONTENER STANU -->
+  <form class="table-state"
+        hx-get="{% url 'compare_table_partial' ctx.table_type %}"
+        hx-target="#{{ ctx.table_type }}-table-wrapper"
+        hx-swap="outerHTML"
+        hx-include="this"
+        hx-trigger="tablechange"
+        >
+
+    <!-- SORT -->
+    <input type="hidden" name="sort" value="{{ ctx.current_sort }}">
+    <input type="hidden" name="dir" value="{{ ctx.current_dir }}">
+
+
+    <!-- PAGINACJA -->
+    <input type="hidden" name="page_{{ ctx.table_type }}" value="{{ ctx.page_obj.number }}">
+
+    <!-- FILTRY -->
+    <input type="hidden" name="score_min" value="{{ ctx.score_min }}">
+    <input type="hidden" name="score_max" value="{{ ctx.score_max }}">
+    <input type="hidden" name="ep_min" value="{{ ctx.ep_min }}">
+    <input type="hidden" name="ep_max" value="{{ ctx.ep_max }}">
+    {% for g in ctx.included_genres %}
+      <input type="hidden" name="genres_include[]" value="{{ g }}">
+    {% endfor %}
+    {% for g in ctx.excluded_genres %}
+      <input type="hidden" name="genres_exclude[]" value="{{ g }}">
+    {% endfor %}
+    {% for s in ctx.included_statuses %}
+      <input type="hidden" name="status_include[]" value="{{ s }}">
+    {% endfor %}
+    {% for s in ctx.excluded_statuses %}
+      <input type="hidden" name="status_exclude[]" value="{{ s }}">
+    {% endfor %}
+    <input type="hidden" name="filters_open" value="{{ ctx.filters_open|yesno:'1,0'}}">
+  </form>
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h2 class="mb-0">Filtry</h2>
+      <div class="d-flex gap-2">
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-danger reset-filters"
+        >
+          Resetuj filtry
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary toggle-filters"
+        >
+          {% if ctx.filters_open %}
+            Ukryj filtry
+          {% else %}
+            Pokaż filtry
+          {% endif %}
+        </button>
+      </div>
+  </div>
+  {% if ctx.filters_summary %}
+    <div
+      class="filters-summary {% if ctx.filters_open %}d-none{% endif %} mb-2 small text-muted text-center">
+      {{ ctx.filters_summary|join:" | " }}
+    </div>
+  {% endif %}
+  <div class="filters {% if ctx.filters_open %}is-open{% endif %}">
+  {% include "anime_compare/partials/genre_filter.html" with table_type=ctx.table_type all_genres=ctx.all_genres included_genres=ctx.included_genres excluded_genres=ctx.excluded_genres  %}
+
+  {% include "anime_compare/partials/status_filter.html" with table_type=ctx.table_type all_statuses=ctx.all_statuses included_statuses=ctx.included_statuses excluded_statuses=ctx.excluded_statuses status_labels=ctx.status_labels %}
+
+  {% include "anime_compare/partials/score_filter.html" with score_min=ctx.score_min score_max=ctx.score_max %}
+
+  {% include "anime_compare/partials/episode_filter.html" with ep_min=ctx.ep_min ep_max=ctx.ep_max %}
+ </div>
+  {% include "anime_compare/partials/table_generic.html" with table_type=ctx.table_type page_obj=ctx.page_obj columns=ctx.columns user_a=ctx.user_a user_b=ctx.user_b current_sort=ctx.current_sort current_dir=ctx.current_dir all_genres=ctx.all_genres included_genres=ctx.included_genres excluded_genres=ctx.excluded_genres %}
+
+</div>

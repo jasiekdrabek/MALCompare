@@ -1,0 +1,32 @@
+<!--
+Wejście:
+  label         – tekst nagłówka (np. "Tytuł", "Score A")
+  sort_key      – np. "title", "score_a"
+  table_type    – "common" | "only_a" | "only_b"
+  current_sort
+  current_dir
+  {# ASC → DESC -> brak sortu -> ASC#}
+-->
+<a 
+  class="text-decoration-none text-dark d-inline-flex align-items-center gap-1 sort-header"
+  data-sort="{{ sort_key }}"
+  data-active="{% if current_sort == sort_key %}1{% else %}0{% endif %}"
+  data-dir="{% if current_sort == sort_key %}{{ current_dir }}{% endif %}"
+>
+    {% if sort_key|slice:"-2:" == "_a" %}
+        {{ label }} {{ user_a }}
+    {% elif sort_key|slice:"-2:" == "_b" %}
+        {{ label }} {{ user_b }}
+    {% else %}
+        {{ label }}
+    {% endif %}
+    {% if current_sort == sort_key %}
+        {% if current_dir == "asc" %}
+        <span>▲</span>
+        {% elif current_dir == "desc" %}
+        <span>▼</span>
+        {% endif %}
+    {% else %}
+    <span>⇅</span>
+    {% endif %}
+</a>

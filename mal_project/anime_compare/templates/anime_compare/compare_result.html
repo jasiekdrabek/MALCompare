@@ -6,27 +6,558 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
     />
-    <style>
-      img.poster {
-        height: 80px;
-        border-radius: 4px;
-      }
-      table td {
-        vertical-align: middle;
-      }
-    </style>
   </head>
   <body class="p-4">
     <h2>Porównanie użytkowników {{ common_ctx.user_a }} vs {{ common_ctx.user_b }}</h2>
 
-    <hr />
+ <ul class="nav nav-tabs mb-3" role="tablist">
+  <li class="nav-item">
+    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#pane-common">
+      🎬 Wspólne
+    </button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#pane-only-a">
+      🅰 Tylko {{ common_ctx.user_a }}
+    </button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#pane-only-b">
+      🅱 Tylko {{ common_ctx.user_b }}
+    </button>
+  </li>
+</ul>
 
-      {% include "anime_compare/partials/table_generic.html" with table_type=common_ctx.table_type page_obj=common_ctx.page_obj user_a=common_ctx.user_a user_b=common_ctx.user_b %}
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="pane-common">
+    {% include "anime_compare/partials/table_block.html" with ctx=common_ctx %}
+  </div>
 
-      {% include "anime_compare/partials/table_generic.html" with table_type=only_a_ctx.table_type page_obj=only_a_ctx.page_obj user_a=only_a_ctx.user_a user_b=only_a_ctx.user_b %}
+  <div class="tab-pane fade" id="pane-only-a">
+    {% include "anime_compare/partials/table_block.html" with ctx=only_a_ctx %}
+  </div>
 
-      {% include "anime_compare/partials/table_generic.html" with table_type=only_b_ctx.table_type page_obj=only_b_ctx.page_obj user_a=only_b_ctx.user_a user_b=only_b_ctx.user_b %}
+  <div class="tab-pane fade" id="pane-only-b">
+    {% include "anime_compare/partials/table_block.html" with ctx=only_b_ctx %}
+  </div>
+ </div>
+
 
   </body>
   <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+document.addEventListener("click", function (e) {
+  // KLIK W ORYGINALNE PILLE
+  const sourcePill = e.target.closest(".genre-checkboxes .genre-pill");
+  if (sourcePill) {
+    const wrapper = sourcePill.closest(".genre-filter");
+    if (!wrapper) return;
+
+    const wrapperTable = sourcePill.closest(".table-wrapper");
+    const form = wrapperTable.querySelector(".table-state");
+    if (!form) return;
+    const states = ["neutral", "include", "exclude"];
+    const next = states[(states.indexOf(sourcePill.dataset.state) + 1) % 3];
+
+    sourcePill.dataset.state = next;
+    sourcePill.className = "genre-pill " + next;
+
+    rebuild(wrapper,form);
+    htmx.trigger(form, "tablechange");
+    return;
+  }
+  // KLIK W SEKCJĘ INFORMACYJNĄ
+  const summaryPill = e.target.closest(".genre-summary-pill");
+  if (summaryPill) {
+    const genre = summaryPill.dataset.genre;
+    const wrapperTable = summaryPill.closest(".table-wrapper");
+    const tableType = wrapperTable.dataset.tableType;
+    const wrapper = document.querySelector(`.genre-container-${tableType}`);
+    const form = wrapperTable.querySelector(".table-state");
+    if (!form) return;
+    const original = wrapper.querySelector(
+      `.genre-checkboxes .genre-pill[data-genre="${genre}"]`
+    );
+
+    if (original) {
+      if (summaryPill.classList.contains("neutral")) {
+        original.dataset.state = "include";
+        original.className = "genre-pill include";
+      } else if(summaryPill.classList.contains("include")){
+        original.dataset.state = "exclude";
+        original.className = "genre-pill exclude";
+      }else if(summaryPill.classList.contains("exclude")){
+        original.dataset.state = "neutral";
+        original.className = "genre-pill neutral";
+      }
+    }
+
+    rebuild(wrapper,form);
+    htmx.trigger(form, "tablechange");
+  }
+});
+// POMOCNICZE
+function rebuild(wrapper,form) {
+  form.querySelectorAll("input[name^='genres_']").forEach(i => i.remove());
+  wrapper
+    .querySelectorAll(".genre-checkboxes .genre-pill")
+    .forEach(p => {
+      if (p.dataset.state === "include" || p.dataset.state === "exclude") {
+        const i = document.createElement("input");
+        i.type = "hidden";
+        i.name = p.dataset.state === "include"
+          ? "genres_include[]"
+          : "genres_exclude[]";
+        i.value = p.dataset.genre;
+        form.appendChild(i);
+      }
+    });
+  const pageInput = form.querySelector("input[name^='page_']");
+  if (pageInput) pageInput.value = 1;
+}
+</script>
+<script>
+  document.addEventListener("click", function (e) {
+  const header = e.target.closest(".sort-header");
+  if (!header) return;
+
+  const wrapper = header.closest(".table-wrapper");
+  const form = wrapper.querySelector(".table-state");
+  if (!form) return;
+
+  const sortInput = form.querySelector("input[name='sort']");
+  const dirInput  = form.querySelector("input[name='dir']");
+  const pageInput = form.querySelector("input[name^='page_']");
+
+  const key = header.dataset.sort;
+  const isActive = header.dataset.active === "1";
+  const currentDir = header.dataset.dir || "";
+
+  let nextDir;
+
+  if (!isActive) {
+    // klik w nową kolumnę
+    nextDir = "asc";
+  } else if (currentDir === "asc") {
+    nextDir = "desc";
+  } else if (currentDir === "desc") {
+    nextDir = "";
+  } else {
+    nextDir = "asc";
+  }
+
+  sortInput.value = nextDir ? key : "";
+  dirInput.value  = nextDir;
+
+  if (pageInput) pageInput.value = 1;
+
+  htmx.trigger(form, "tablechange");
+});
+</script>
+<script>
+  document.addEventListener("click", function (e) {
+
+  const prevBtn = e.target.closest(".page-prev");
+  if (prevBtn && !prevBtn.disabled) {
+    changePage(prevBtn, -1);
+    return;
+  }
+
+  const nextBtn = e.target.closest(".page-next");
+  if (nextBtn && !nextBtn.disabled) {
+    changePage(nextBtn, +1);
+    return;
+  }
+});
+
+function changePage(button, delta) {
+  const wrapper = button.closest(".table-wrapper");
+  if (!wrapper) return;
+
+  const form = wrapper.querySelector(".table-state");
+  if (!form) return;
+
+  const pageInput = form.querySelector("input[name^='page_']");
+  if (!pageInput) return;
+
+  const current = parseInt(pageInput.value, 10) || 1;
+  pageInput.value = current + delta;
+
+  htmx.trigger(form, "tablechange");
+}
+</script>
+<script>
+
+  function nextState(current) {
+  const states = ["neutral", "include", "exclude"];
+  return states[(states.indexOf(current) + 1) % 3];
+}
+document.addEventListener("click", function (e) {
+// KLIK W STATUS FILTER
+const statusPill = e.target.closest(".status-filter .status-pill");
+if (statusPill) {
+  const wrapperTable = statusPill.closest(".table-wrapper");
+  const form = wrapperTable?.querySelector(".table-state");
+  if (!form) return;
+
+  const next = nextState(statusPill.dataset.state);
+  statusPill.dataset.state = next;
+  statusPill.className = "status-pill " + next;
+
+  rebuildStatuses(wrapperTable, form);
+  htmx.trigger(form, "tablechange");
+  return;
+}
+
+function rebuildStatuses(wrapperTable, form) {
+  form.querySelectorAll("input[name^='status_']").forEach(i => i.remove());
+
+  wrapperTable
+    .querySelectorAll(".status-filter .status-pill")
+    .forEach(pill => {
+      if (pill.dataset.state === "include" || pill.dataset.state === "exclude") {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = pill.dataset.state === "include"
+          ? "status_include[]"
+          : "status_exclude[]";
+        input.value = pill.dataset.status;
+        form.appendChild(input);
+      }
+    });
+
+  const pageInput = form.querySelector("input[name^='page_']");
+  if (pageInput) pageInput.value = 1;
+}
+});
+
+</script>
+<script>
+function rebuildRange(form, nameMin, nameMax, minValue, maxValue) {
+  form.querySelectorAll(
+    `input[name='${nameMin}'], input[name='${nameMax}']`
+  ).forEach(i => i.remove());
+
+  if (minValue !== "") {
+    const i = document.createElement("input");
+    i.type = "hidden";
+    i.name = nameMin;
+    i.value = minValue;
+    form.appendChild(i);
+  }
+
+  if (maxValue !== "") {
+    const i = document.createElement("input");
+    i.type = "hidden";
+    i.name = nameMax;
+    i.value = maxValue;
+    form.appendChild(i);
+  }
+}
+
+document.addEventListener("click", e => {
+  const btn = e.target.closest(".apply-score");
+  if (!btn) return;
+
+  const wrapperTable = btn.closest(".table-wrapper");
+  const form = wrapperTable.querySelector(".table-state");
+
+  const min = wrapperTable.querySelector("[data-filter='score_min']").value;
+  const max = wrapperTable.querySelector("[data-filter='score_max']").value;
+
+  rebuildRange(form, "score_min", "score_max", min, max);
+  form.querySelector("input[name^='page_']").value = 1;
+  htmx.trigger(form, "tablechange");
+});
+
+document.addEventListener("click", e => {
+  const btn = e.target.closest(".apply-episodes");
+  if (!btn) return;
+
+  const wrapperTable = btn.closest(".table-wrapper");
+  const form = wrapperTable.querySelector(".table-state");
+
+  const min = wrapperTable.querySelector("[data-filter='ep_min']").value;
+  const max = wrapperTable.querySelector("[data-filter='ep_max']").value;
+
+  rebuildRange(form, "ep_min", "ep_max", min, max);
+  form.querySelector("input[name^='page_']").value = 1;
+  htmx.trigger(form, "tablechange");
+});
+
+</script>
+<script>
+document.addEventListener("click", e => {
+  const btn = e.target.closest(".toggle-filters");
+  if (!btn) return;
+
+  const wrapper = btn.closest(".table-wrapper");
+  const filters = wrapper.querySelector(".filters");
+  const summary = wrapper.querySelector(".filters-summary");
+  const input = wrapper.querySelector("input[name='filters_open']");
+
+  const isOpen = filters.classList.toggle("is-open");
+
+  input.value = isOpen ? "1" : "0";
+
+  // UI only
+  btn.textContent = isOpen ? "Ukryj filtry" : "Pokaż filtry";
+
+  summary.classList.toggle("d-none", isOpen);
+});
+</script>
+<script>
+document.addEventListener("click", e => {
+  const btn = e.target.closest(".reset-filters");
+  if (!btn) return;
+
+  const wrapper = btn.closest(".table-wrapper");
+  const form = wrapper.querySelector(".table-state");
+  if (!form) return;
+
+  // 🔢 DOMYŚLNE WARTOŚCI
+  setValue(form, "score_min", 1);
+  setValue(form, "score_max", 10);
+  setValue(form, "ep_min", 1);
+  setValue(form, "ep_max", 2000);
+  setValue(form, "dir", "asc"),
+  setValue(form, "sort", "title")
+
+  // 📄 STRONA = 1
+  const pageInput = form.querySelector("input[name^='page_']");
+  if (pageInput) pageInput.value = 1;
+
+  // 🧹 USUŃ FILTRY LISTOWE
+  form.querySelectorAll(
+    "input[name='genres_include[]'], " +
+    "input[name='genres_exclude[]'], " +
+    "input[name='status_include[]'], " +
+    "input[name='status_exclude[]']" 
+  ).forEach(i => i.remove());
+
+  // 🚀 JEDEN REQUEST
+  htmx.trigger(form, "tablechange");
+});
+
+function setValue(form, name, value) {
+  const input = form.querySelector(`input[name='${name}']`);
+  if (input) input.value = value;
+}
+</script>
+  <style>
+  .sort-header {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .sort-header:hover {
+    text-decoration: underline;
+  }
+
+  img.poster {
+    height: 80px;
+    border-radius: 4px;
+  }
+
+  table td,
+  table th {
+    vertical-align: middle;
+    padding: 0.75rem 0.75rem;
+  }
+
+  /* Wrapper – padding + zaokrąglenia */
+  .table-wrapper {
+    padding: 1rem;
+    border-radius: 12px;
+    background: #f8f9fa;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Wyraźniejsze linie kolumn */
+  table {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  table th,
+  table td {
+    border-right: 1px solid #dee2e6;
+  }
+
+  table th:last-child,
+  table td:last-child {
+    border-right: none;
+  }
+
+  /* Górny border nagłówka */
+  table thead th {
+    border-bottom: 2px solid #ced4da;
+    background-color: #f8f9fa;
+  }
+
+  /* Zaokrąglone rogi tabeli */
+  table thead tr:first-child th:first-child {
+    border-top-left-radius: 10px;
+  }
+
+  table thead tr:first-child th:last-child {
+    border-top-right-radius: 10px;
+  }
+
+  table tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 10px;
+  }
+
+  table tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 10px;
+  }
+
+.genre-filter,
+.status-filter,
+.filter-block {
+  padding: 14px;
+  background: #f8f9fa;
+  border-radius: 14px;
+  margin-bottom: 16px;
+  border: 1px solid #e5e7eb;
+}
+
+/* =========================
+   SEKCJE (gatunki / wybrane / wykluczone)
+========================= */
+.genre-filter > div,
+.status-filter > div,
+.filter-block > div {
+  padding: 10px;
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+}
+
+.genre-filter > div + div,
+.status-filter > div + div,
+.filter-block > div + div {
+  margin-top: 12px;
+}
+
+/* =========================
+   NAGŁÓWKI SEKCJI
+========================= */
+.genre-filter strong,
+.status-filter strong,
+.filter-block strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
+
+/* =========================
+   LISTA GATUNKÓW
+========================= */
+.genre-checkboxes,
+.status-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* =========================
+   PODSUMOWANIE
+========================= */
+.genre-summary > div + div {
+  margin-top: 10px;
+}
+
+.selected-genres,
+.excluded-genres {
+  min-height: 28px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* =========================
+   PILL – BAZA
+========================= */
+.genre-pill,
+.genre-summary-pill,
+.status-pill {
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.85rem;
+  position: relative;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.genre-pill:hover,
+.genre-summary-pill:hover,
+.status-pill:hover {
+  transform: translateY(-1px);
+}
+
+/* =========================
+   STANY
+========================= */
+.genre-pill.include,
+.genre-summary-pill.include,
+.status-pill.include {
+  background: #e6f4ea;
+  border-color: #2da44e;
+  color: #1a7f37;
+}
+
+.genre-pill.exclude,
+.genre-summary-pill.exclude,
+.status-pill.exclude {
+  background: #fdecea;
+  border-color: #d1242f;
+  color: #a40e26;
+}
+
+.genre-pill.neutral,
+.status-pill.neutral {
+  background: #f6f8fa;
+}
+
+/* =========================
+   "X" W PODSUMOWANIU
+========================= */
+.genre-summary-pill.include::after,
+.genre-summary-pill.exclude::after,
+.status-pill.include::after,
+.status-pill.exclude::after {
+  content: "×";
+  font-weight: bold;
+  margin-left: 8px;
+  opacity: 0.6;
+}
+
+.genre-summary-pill:hover::after,
+.status-pill:hover::after {
+  opacity: 1;
+}
+
+.toggle-filters {
+  font-weight: 500;
+}
+
+.toggle-filters.collapsed {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+.filters{
+  display: none;
+}
+
+.filters.is-open {
+  display: block;
+}
+  </style>
 </html>

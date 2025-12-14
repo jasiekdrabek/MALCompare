@@ -1,0 +1,17 @@
+{% load dict_extras %}
+<div class="status-filter">
+  <div>
+    <strong>Statusy</strong>
+    <div class="status-checkboxes d-flex flex-wrap gap-2">
+    {% for status in all_statuses %}
+      <span
+        class="status-pill {% if status in included_statuses %} include {% elif status in excluded_statuses %} exclude {% else %} neutral {% endif %}"
+        data-status="{{ status }}"
+        data-state="{% if status in included_statuses %}include{% elif status in excluded_statuses %}exclude{% else %}neutral{% endif %}"
+      >
+        {{ status_labels|get_status:status }}
+      </span>
+    {% endfor %}
+    </div>
+  </div>
+</div>

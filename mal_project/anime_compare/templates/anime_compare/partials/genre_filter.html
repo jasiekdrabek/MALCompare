@@ -1,0 +1,40 @@
+<div class="genre-filter genre-container-{{table_type}}">
+<div>
+  <strong>Gatunki</strong>
+
+  <div class="genre-checkboxes">
+    {% for genre in all_genres %}
+    <span class="genre-pill
+        {% if genre in included_genres %}include{% elif genre in excluded_genres %}exclude{% else %}neutral{% endif %}"
+        data-genre="{{ genre }}"
+        data-state="{% if genre in included_genres %}include{% elif genre in excluded_genres %}exclude{% else %}neutral{% endif %}">
+        {{ genre }}
+    </span>
+    {% endfor %}
+  </div>
+</div>
+
+  <div class="genre-summary">
+    <div>
+      <strong>Wybrane gatunki:</strong>
+      <div class="selected-genres">
+        {% for g in included_genres %}
+            <span class="genre-summary-pill include" data-genre="{{ g }}">{{g}}</span>
+            {% empty %}
+            <em>brak</em>
+        {% endfor %}  
+      </div>
+    </div>
+
+    <div>
+      <strong>Wykluczone gatunki:</strong>
+      <div class="excluded-genres">
+        {% for g in excluded_genres %}
+            <span class="genre-summary-pill exclude" data-genre="{{ g }}">{{g}}</span>
+        {% empty %}
+            <em>brak</em>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
