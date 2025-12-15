@@ -3,10 +3,6 @@ from django.db import transaction
 from django.utils import timezone
 
 def save_user_anime_list(username: str, animelist_data: dict) -> UserAnime:
-    """
-    Zapis pełnej listy anime użytkownika do bazy.
-    animelist_data to wynik fetch_full_animelist(username, token).
-    """
     entries = animelist_data
     entry_count = len(entries)
 

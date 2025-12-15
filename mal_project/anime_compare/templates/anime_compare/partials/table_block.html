@@ -1,6 +1,5 @@
 <div    id="{{ ctx.table_type }}-table-wrapper" class="table-wrapper mb-5 p-3" data-table-type="{{ ctx.table_type }}">
 
-  <!-- 🔐 KONTENER STANU -->
   <form class="table-state"
         hx-get="{% url 'compare_table_partial' ctx.table_type %}"
         hx-target="#{{ ctx.table_type }}-table-wrapper"
@@ -9,15 +8,11 @@
         hx-trigger="tablechange"
         >
 
-    <!-- SORT -->
     <input type="hidden" name="sort" value="{{ ctx.current_sort }}">
     <input type="hidden" name="dir" value="{{ ctx.current_dir }}">
 
-
-    <!-- PAGINACJA -->
     <input type="hidden" name="page_{{ ctx.table_type }}" value="{{ ctx.page_obj.number }}">
 
-    <!-- FILTRY -->
     <input type="hidden" name="score_min" value="{{ ctx.score_min }}">
     <input type="hidden" name="score_max" value="{{ ctx.score_max }}">
     <input type="hidden" name="ep_min" value="{{ ctx.ep_min }}">

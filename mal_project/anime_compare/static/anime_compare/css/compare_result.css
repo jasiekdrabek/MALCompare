@@ -1,0 +1,232 @@
+/* =====================================================
+   TABLE SORTING / INTERACTIONS
+===================================================== */
+  
+  .sort-header {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .sort-header:hover {
+    text-decoration: underline;
+  }
+
+/* =====================================================
+   IMAGES / TABLE CELLS
+===================================================== */
+
+  img.poster {
+    height: 80px;
+    border-radius: 4px;
+  }
+
+  table td,
+  table th {
+    vertical-align: middle;
+    padding: 0.75rem 0.75rem;
+  }
+
+/* =====================================================
+   TABLE WRAPPER
+===================================================== */
+
+  .table-wrapper {
+    padding: 1rem;
+    border-radius: 12px;
+    background: #f8f9fa;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    margin-bottom: 1.5rem;
+  }
+
+/* =====================================================
+   TABLE STRUCTURE / BORDERS
+===================================================== */
+
+  table {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  table th,
+  table td {
+    border-right: 1px solid #dee2e6;
+  }
+
+  table th:last-child,
+  table td:last-child {
+    border-right: none;
+  }
+
+  table thead th {
+    border-bottom: 2px solid #ced4da;
+    background-color: #f8f9fa;
+  }
+
+/* =====================================================
+   TABLE ROUNDED CORNERS
+===================================================== */
+
+  table thead tr:first-child th:first-child {
+    border-top-left-radius: 10px;
+  }
+
+  table thead tr:first-child th:last-child {
+    border-top-right-radius: 10px;
+  }
+
+  table tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 10px;
+  }
+
+  table tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 10px;
+  }
+
+/* =====================================================
+   FILTER BLOCKS (GENRES / STATUS / SCORE / NUMBERS OF EPISODES)
+===================================================== */
+
+.genre-filter,
+.status-filter,
+.filter-block {
+  padding: 14px;
+  background: #f8f9fa;
+  border-radius: 14px;
+  margin-bottom: 16px;
+  border: 1px solid #e5e7eb;
+}
+
+/* =====================================================
+   FILTER SECTIONS
+===================================================== */
+
+.genre-filter > div,
+.status-filter > div,
+.filter-block > div {
+  padding: 10px;
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+}
+
+.genre-filter > div + div,
+.status-filter > div + div,
+.filter-block > div + div {
+  margin-top: 12px;
+}
+.genre-filter strong,
+.status-filter strong,
+.filter-block strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
+
+/* =====================================================
+   FILTER LISTS (PILLS)
+===================================================== */
+
+.genre-checkboxes,
+.status-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.genre-summary > div + div {
+  margin-top: 10px;
+}
+
+.selected-genres,
+.excluded-genres {
+  min-height: 28px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* =====================================================
+   PILL – BASE
+===================================================== */
+
+.genre-pill,
+.genre-summary-pill,
+.status-pill {
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.85rem;
+  position: relative;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.genre-pill:hover,
+.genre-summary-pill:hover,
+.status-pill:hover {
+  transform: translateY(-1px);
+}
+
+/* =====================================================
+   PILL STATES
+===================================================== */
+
+.genre-pill.include,
+.genre-summary-pill.include,
+.status-pill.include {
+  background: #e6f4ea;
+  border-color: #2da44e;
+  color: #1a7f37;
+}
+
+.genre-pill.exclude,
+.genre-summary-pill.exclude,
+.status-pill.exclude {
+  background: #fdecea;
+  border-color: #d1242f;
+  color: #a40e26;
+}
+
+.genre-pill.neutral,
+.status-pill.neutral {
+  background: #f6f8fa;
+}
+
+.genre-summary-pill.include::after,
+.genre-summary-pill.exclude::after,
+.status-pill.include::after,
+.status-pill.exclude::after {
+  content: "×";
+  font-weight: bold;
+  margin-left: 8px;
+  opacity: 0.6;
+}
+
+.genre-summary-pill:hover::after,
+.status-pill:hover::after {
+  opacity: 1;
+}
+
+/* =====================================================
+   FILTER VISIBILITY
+===================================================== */
+
+.toggle-filters {
+  font-weight: 500;
+}
+
+.toggle-filters.collapsed {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.filters{
+  display: none;
+}
+
+.filters.is-open {
+  display: block;
+}

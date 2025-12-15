@@ -14,7 +14,6 @@ def compare_users_lists(userA: str, userB: str):
     dictA = {e.anime.id: e for e in entriesA}
     dictB = {e.anime.id: e for e in entriesB}
 
-    # 1. wspólne
     common_ids = set(dictA.keys()) & set(dictB.keys())
     common = []
     for anime_id in common_ids:
@@ -32,7 +31,6 @@ def compare_users_lists(userA: str, userB: str):
             "genres":a.anime.genres,
         })
 
-    # 2. tylko u A
     only_a = [{
         "anime_id": anime_id,
         "title": dictA[anime_id].anime.title,
@@ -43,7 +41,6 @@ def compare_users_lists(userA: str, userB: str):
         "genres":dictA[anime_id].anime.genres,
     } for anime_id in set(dictA.keys()) - set(dictB.keys())]
 
-    # 3. tylko u B
     only_b = [{
         "anime_id": anime_id,
         "title": dictB[anime_id].anime.title,

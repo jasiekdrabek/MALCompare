@@ -17,10 +17,7 @@ def mal_get(request, url, params=None):
     return resp.json()
 
 def mal_fetch_anime_list(username, access_token):
-    """
-    Pobiera pełną listę anime użytkownika (wszystkie strony).
-    Zwraca listę obiektów anime (merged data).
-    """
+
     all_anime = []
     
     # pierwszy URL
