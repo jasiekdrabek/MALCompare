@@ -1,0 +1,29 @@
+<div    id="{{ ctx.table_type }}-table-wrapper" class="table-wrapper mb-5 p-3" data-table-type="{{ ctx.table_type }}">
+  <h2>Rekomendacje</h2>
+  <form class="table-state"
+        hx-get="{% url 'recommendation_block' ctx.table_type %}"
+        hx-target="#{{ ctx.table_type }}-table-wrapper"
+        hx-swap="outerHTML"
+        hx-include="this"
+        hx-trigger="tablechange"
+        >
+
+    <input type="hidden" name="sort" value="{{ ctx.current_sort }}">
+    <input type="hidden" name="dir" value="{{ ctx.current_dir }}">
+
+    <input type="hidden" name="page_{{ ctx.table_type }}" value="{{ ctx.page_obj.number }}">
+
+    {% for g in ctx.included_genres %}
+      <input type="hidden" name="genres_include[]" value="{{ g }}">
+    {% endfor %}
+    {% for g in ctx.excluded_genres %}
+      <input type="hidden" name="genres_exclude[]" value="{{ g }}">
+    {% endfor %}
+  </form>
+
+
+  {% include "anime_compare/partials/genre_filter.html" with table_type=ctx.table_type all_genres=ctx.all_genres included_genres=ctx.included_genres excluded_genres=ctx.excluded_genres  %}
+
+  {% include "anime_compare/partials/table_generic.html" with table_type=ctx.table_type page_obj=ctx.page_obj columns=ctx.columns user_a=ctx.user_a user_b=ctx.user_b current_sort=ctx.current_sort current_dir=ctx.current_dir all_genres=ctx.all_genres included_genres=ctx.included_genres excluded_genres=ctx.excluded_genres %}
+
+</div>

@@ -6,6 +6,7 @@ from ..utils.context import build_table_context
 from datetime import timedelta
 from django.utils import timezone
 from ..models import UserAnime
+from ..utils.recommendations import build_recommendation_context
 
 def compare_users(request):
     pagination_params = {"page_common", "page_only_a", "page_only_b"}
@@ -75,6 +76,7 @@ def _run_comparison(request, user_a, user_b):
     "common_ctx": build_table_context(request, "common", comparison, user_a, user_b),
     "only_a_ctx": build_table_context(request, "only_a", comparison, user_a, user_b),
     "only_b_ctx": build_table_context(request, "only_b", comparison, user_a, user_b),
+    "recommendation_ctx": build_recommendation_context(request,"recommend", user_a, user_b),
     }
 
     return render(request, "anime_compare/compare_result.html", context)

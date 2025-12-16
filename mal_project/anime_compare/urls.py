@@ -17,5 +17,10 @@ urlpatterns = [
     "compare/partial/<str:table_type>/",
     views.compare_table_partial,
     name="compare_table_partial",
-    )
+    ),
+    path(
+        "compare/partial/recommendation/<str:table_type>/",
+        views.recommendation_block,
+        name="recommendation_block",
+    ),
 ]

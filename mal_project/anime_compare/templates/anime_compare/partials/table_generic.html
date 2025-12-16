@@ -25,7 +25,7 @@
           {% elif col.key == "genres" %}
             <div class="genre-cell">
               {% for genre in row.genres %}
-                <span class="genre-summary-pill {% if genre in included_genres %} include {% else %} neutral {% endif %}"
+                <span class="genre-pill {% if genre in included_genres %}include{% elif genre in excluded_genres %}exclude{% else %}neutral{% endif %}"
                   data-genre="{{ genre }}"
                 >
                   {{ genre }}
