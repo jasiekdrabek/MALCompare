@@ -1,12 +1,5 @@
 {% load dict_extras %}
 <div id="{{ table_type }}-table">
-
-  <h3 class="mt-4">
-    {% if table_type == "common" %}🎬 Wspólne anime{% endif %}
-    {% if table_type == "only_a" %}🅰 Tylko {{ user_a }}{% endif %}
-    {% if table_type == "only_b" %}🅱 Tylko {{ user_b }}{% endif %}
-  </h3>
-
   <table class="table table-striped table-hover">
     <thead>
       <tr>
