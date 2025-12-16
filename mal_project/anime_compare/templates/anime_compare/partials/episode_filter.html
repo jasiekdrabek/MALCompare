@@ -2,8 +2,8 @@
   <div>
   <label><strong>Liczba odcinków</strong></label>
   <div class="d-flex gap-2 input-group input-group-sm">
-    <input type="number" min="1" max="2000" step="1" data-filter="ep_min" value="{{ ep_min|default_if_none:'1' }}" max="{{ ep_max|default_if_none:'' }}" >
-    <input type="number" min="1" max="2000" step="1" data-filter="ep_max" value="{{ ep_max|default_if_none:'' }}" min="{{ ep_min|default_if_none:'' }}">
+    <input type="number" min="0" max="2000" step="1" data-filter="ep_min" value="{{ ep_min|default_if_none:'0' }}" max="{{ ep_max|default_if_none:'' }}" >
+    <input type="number" min="0" max="2000" step="1" data-filter="ep_max" value="{{ ep_max|default_if_none:'' }}" min="{{ ep_min|default_if_none:'' }}">
     <button type="button" class="btn btn-sm btn-outline-primary apply-episodes">
       Zastosuj
     </button>

@@ -35,14 +35,14 @@ def build_table_context(request, table_type, comparison, user_a, user_b):
         })
     data = [row for row in data if status_match(row, included_statuses, excluded_statuses, table_type)]
     
-    score_min = _int(request.GET.get("score_min", 1))
+    score_min = _int(request.GET.get("score_min", 0))
     score_max = _int(request.GET.get("score_max", 10))
     if score_min is not None and score_max is not None:
         if score_min > score_max:
             score_min, score_max = score_max, score_min
     data = [row for row in data if score_match(row, score_min, score_max, table_type)]
     
-    ep_min = _int(request.GET.get("ep_min", 1))
+    ep_min = _int(request.GET.get("ep_min", 0))
     ep_max = _int(request.GET.get("ep_max", 2000))
     if ep_min is not None and ep_max is not None:
         if ep_min > ep_max:
