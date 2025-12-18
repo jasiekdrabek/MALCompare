@@ -39,19 +39,24 @@ def save_user_anime_list(username: str, animelist_data: dict) -> UserAnime:
                     main_picture=item["node"]["main_picture"]["medium"]
                 )
             )
-
         if new_anime_objs:
             Anime.objects.bulk_create(new_anime_objs)
             existing.update({
                 a.id: a for a in Anime.objects.filter(id__in=anime_ids)
             })
 
-        entry_objs = []
+        new_entry_objs = []
+        existing_entry = {
+            e.anime_id
+            for e in AnimeEntry.objects.filter(user_list=snapshot)
+        }
         for item in entries:
+            if item["node"]["id"]  in existing_entry:
+                continue
             node = item["node"]
             status_obj = item.get("list_status", {})
 
-            entry_objs.append(
+            new_entry_objs.append(
                 AnimeEntry(
                     user_list=snapshot,
                     anime=existing[node["id"]],
@@ -59,7 +64,10 @@ def save_user_anime_list(username: str, animelist_data: dict) -> UserAnime:
                     score=status_obj.get("score"),
                 )
             )
-
-        AnimeEntry.objects.bulk_create(entry_objs)
+        if new_entry_objs:
+            AnimeEntry.objects.bulk_create(new_entry_objs)
+            existing_entry.update({
+                a.id: a for a in AnimeEntry.objects.filter(id__in=anime_ids)
+            })
 
     return snapshot
