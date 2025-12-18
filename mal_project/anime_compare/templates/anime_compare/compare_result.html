@@ -28,6 +28,16 @@
       🅱 Tylko {{ common_ctx.user_b }}
     </button>
   </li>
+  <li class="nav-item">
+    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#pane-recommendation">
+      Rekomendacje na Secret santa 
+    </button>
+  </li>
+    <li class="nav-item">
+    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#pane-anti-recommendation">
+      Antyrekomendacje na Secret satan 
+    </button>
+  </li>
 </ul>
 
 <div class="tab-content">
@@ -42,9 +52,12 @@
   <div class="tab-pane fade" id="pane-only-b">
     {% include "anime_compare/partials/table_block.html" with ctx=only_b_ctx %}
   </div>
- </div>
-<div>
-{% include "anime_compare/partials/recommendation_block.html" with ctx=recommendation_ctx %}
+  <div class="tab-pane fade" id="pane-recommendation">
+  {% include "anime_compare/partials/recommendation_block.html" with ctx=recommendation_ctx %}
+  </div>
+  <div class="tab-pane fade" id="pane-anti-recommendation">
+  {% include "anime_compare/partials/recommendation_block.html" with ctx=anti_recommendation_ctx %}
+  </div>
 </div>
   </body>
   <script src="https://unpkg.com/htmx.org@1.9.10"></script>

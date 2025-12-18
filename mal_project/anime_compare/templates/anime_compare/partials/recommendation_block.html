@@ -1,5 +1,4 @@
 <div    id="{{ ctx.table_type }}-table-wrapper" class="table-wrapper mb-5 p-3" data-table-type="{{ ctx.table_type }}">
-  <h2>Rekomendacje</h2>
   <form class="table-state"
         hx-get="{% url 'recommendation_block' ctx.table_type %}"
         hx-target="#{{ ctx.table_type }}-table-wrapper"

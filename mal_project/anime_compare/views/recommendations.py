@@ -4,8 +4,10 @@ from django.shortcuts import render
 def recommendation_block(request, table_type):
     user_a = request.session["user_a"]
     user_b = request.session["user_b"]
-
-    ctx = build_recommendation_context(request, table_type, user_a, user_b)
+    anti = False
+    if table_type == "anti_recommend":
+        anti = True
+    ctx = build_recommendation_context(request, table_type, user_a, user_b, anti)
 
     return render(
         request,
