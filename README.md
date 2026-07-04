@@ -4,6 +4,8 @@ Anime Compare is a web application built with Django that compares the anime lis
 
 The application automatically synchronizes data from the MyAnimeList API, compares both users' libraries, provides advanced filtering options, and generates personalized recommendations based on users' ratings and genre preferences.
 
+My main motivation was to build a tool that helps me find anime recommendations for a Secret Santa event in my Discord group.
+
 ---
 
 ## Features
