@@ -30,8 +30,20 @@
         <label class="form-label">Użytkownik B</label>
         <input type="text" name="user_b" required class="form-control" />
       </div>
-
-      <button class="btn btn-primary">Porównaj</button>
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">
+          Porównaj
+        </button>
+        <button
+          type="submit"
+          class="btn btn-outline-secondary"
+          name="demo"
+          value="1"
+          formnovalidate
+        >
+          Pokaż przykład
+        </button>
+      </div>
     </form>
     <div id="compare-results"></div>
   </body>

@@ -19,8 +19,12 @@ def compare_users(request):
             params = request.GET.urlencode()
             return redirect(f"/compare/run/{user_a}/{user_b}/?{params}")
         return redirect("compare_form")
-    user_a = request.POST.get("user_a")
-    user_b = request.POST.get("user_b")
+    if request.POST.get("demo"):
+        user_a = "quintatrix"
+        user_b = "DrFeelGood887"
+    else:
+        user_a = request.POST.get("user_a")
+        user_b = request.POST.get("user_b")
     request.session["user_a"] = user_a
     request.session["user_b"] = user_b
     #token = request.session.get("mal_token")
