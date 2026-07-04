@@ -58,16 +58,16 @@ def mal_my_anime(request):
     access_token = request.session.get("mal_access_token")
     username = request.get("username")
 
-    anime_list = mal_fetch_anime_list(access_token, username)
+    anime_list = mal_fetch_anime_list(username)
 
     return JsonResponse({"count": len(anime_list), "anime": anime_list})
 
 def fetch_and_save(request, username):
-    token = request.session.get("mal_token")
-    if not token:
-        return JsonResponse({"error": "Not authenticated with MAL"}, status=401)
+    #token = request.session.get("mal_token")
+    #if not token:
+    #    return JsonResponse({"error": "Not authenticated with MAL"}, status=401)
 
-    animelist_data = mal_fetch_anime_list(username, token)
+    animelist_data = mal_fetch_anime_list(username)
 
     snapshot = save_user_anime_list(username, animelist_data)
 

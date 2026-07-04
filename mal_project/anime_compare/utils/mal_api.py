@@ -1,7 +1,8 @@
 import requests
 import os
 
-BASE_URL = os.getenv("BASE_API_URL") 
+BASE_URL = os.getenv("BASE_API_URL")
+MAL_CLIENT_ID = os.getenv("MAL_CLIENT_ID") 
 
 def mal_get(request, url, params=None):
     token = request.session.get("mal_token")
@@ -16,7 +17,7 @@ def mal_get(request, url, params=None):
     resp.raise_for_status()
     return resp.json()
 
-def mal_fetch_anime_list(username, access_token):
+def mal_fetch_anime_list(username):
 
     all_anime = []
     
@@ -28,7 +29,7 @@ def mal_fetch_anime_list(username, access_token):
     )
 
     headers = {
-        "Authorization": f"Bearer {access_token}"
+        "X-MAL-CLIENT-ID": MAL_CLIENT_ID
     }
 
     while url:

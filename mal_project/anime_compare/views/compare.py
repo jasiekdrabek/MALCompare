@@ -23,22 +23,22 @@ def compare_users(request):
     user_b = request.POST.get("user_b")
     request.session["user_a"] = user_a
     request.session["user_b"] = user_b
-    token = request.session.get("mal_token")
+    #token = request.session.get("mal_token")
 
-    if not token:
-        request.session["pending_compare_a"] = user_a
-        request.session["pending_compare_b"] = user_b
-        return redirect("mal_login")
+    #if not token:
+    #    request.session["pending_compare_a"] = user_a
+    #    request.session["pending_compare_b"] = user_b
+    #    return redirect("mal_login")
 
     return _run_comparison(request, user_a, user_b)
 
 def compare_users_direct(request, user_a, user_b):
-    token = request.session.get("mal_token")
+    #token = request.session.get("mal_token")
 
-    if not token:
-        request.session["pending_compare_a"] = user_a
-        request.session["pending_compare_b"] = user_b
-        return redirect("mal_login")
+    #if not token:
+    #    request.session["pending_compare_a"] = user_a
+    #    request.session["pending_compare_b"] = user_b
+    #    return redirect("mal_login")
 
     return _run_comparison(request, user_a, user_b)
 
@@ -57,7 +57,7 @@ def compare_table_partial(request, table_type):
     
 def _run_comparison(request, user_a, user_b):
 
-    token = request.session["mal_token"]
+    #token = request.session["mal_token"]
     snapA = UserAnime.objects.filter(username=user_a).first()
     snapB = UserAnime.objects.filter(username=user_b).first()
 
@@ -65,11 +65,11 @@ def _run_comparison(request, user_a, user_b):
     max_age = timedelta(days=3)
 
     if not snapA or not snapA.fetched_at or now - snapA.fetched_at > max_age:
-        data_a = mal_fetch_anime_list(user_a, token)
+        data_a = mal_fetch_anime_list(user_a)
         save_user_anime_list(user_a, data_a)
 
     if not snapB or not snapB.fetched_at or now - snapB.fetched_at > max_age:
-        data_b = mal_fetch_anime_list(user_b, token)
+        data_b = mal_fetch_anime_list(user_b)
         save_user_anime_list(user_b, data_b)
     comparison = compare_users_lists(user_a, user_b)
     context = {

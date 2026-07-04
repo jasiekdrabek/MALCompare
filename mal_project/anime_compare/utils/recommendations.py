@@ -35,7 +35,7 @@ def build_genre_preferences(user_rows):
     }
 
     if not genre_avg:
-        return set(), set()
+        return set(), set(),{}
 
     values = sorted(genre_avg.values())
 
