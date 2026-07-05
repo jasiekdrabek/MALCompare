@@ -26,6 +26,11 @@ My main motivation was to build a tool that helps me find anime recommendations 
 
 ---
 
+## Hosting
+
+[Website](https://malcompare.onrender.com/) is hosted by [render](https://render.com). May not be available after August 3, 2026.
+
+---
 
 ## Screenshots
 
