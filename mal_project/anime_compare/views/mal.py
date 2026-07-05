@@ -66,7 +66,6 @@ def fetch_and_save(request, username):
     #    return JsonResponse({"error": "Not authenticated with MAL"}, status=401)
 
     animelist_data = mal_fetch_anime_list(username)
-
     snapshot = save_user_anime_list(username, animelist_data)
 
     return JsonResponse({
