@@ -7,14 +7,9 @@ def save_user_anime_list(username: str, animelist_data: dict) -> UserAnime:
     entry_count = len(entries)
 
     with transaction.atomic():
-        # Jeżeli istnieje snapshot dla tego username -> zaktualizuj (nadpisujemy)
-        snapshot, created = UserAnime.objects.get_or_create(
-            username=username,
-            defaults={"entry_count": entry_count}
-        )
+        snapshot, created = UserAnime.objects.get_or_create(username=username, defaults={"entry_count": entry_count})
 
         if not created:
-            # Zaktualizuj licznik i fetched_at (jeśli chcesz zaktualizować czas)
             snapshot.entry_count = entry_count
             snapshot.fetched_at = timezone.now()
             snapshot.save()

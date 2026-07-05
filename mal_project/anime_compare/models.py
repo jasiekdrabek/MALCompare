@@ -1,6 +1,5 @@
 from django.db import models
 
-# Create your models here.
 class UserAnime(models.Model):
     """
     Snapshot listy anime danego użytkownika z MAL w konkretnym momencie.
@@ -21,9 +20,9 @@ class Anime(models.Model):
     """
     Unikalne anime z MAL – przechowywane tylko raz.
     """
-    id = models.IntegerField(primary_key=True)       # MAL anime_id
+    id = models.IntegerField(primary_key=True)
     title = models.CharField(max_length=500)
-    genres = models.JSONField(default=list)          # lista stringów
+    genres = models.JSONField(default=list)
     num_episodes = models.PositiveIntegerField(null=True, blank=True)
     main_picture = models.URLField(null=True, blank=True)
 

@@ -19,10 +19,9 @@ from django.urls import path, include
 
 urlpatterns = [
 path('admin/', admin.site.urls),
-path('', include('anime_compare.urls')), # utworzymy anime_compare/urls.py
+path('', include('anime_compare.urls')),
 ]
 
-# fmt: off
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns += staticfiles_urlpatterns()
