@@ -57,9 +57,7 @@ def mal_callback(request):
 def mal_my_anime(request):
     access_token = request.session.get("mal_access_token")
     username = request.get("username")
-
     anime_list = mal_fetch_anime_list(username)
-
     return JsonResponse({"count": len(anime_list), "anime": anime_list})
 
 def fetch_and_save(request, username):
